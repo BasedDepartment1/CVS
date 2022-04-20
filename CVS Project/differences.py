@@ -62,7 +62,6 @@ class Differences:
             ))
         return difference
 
-
     # @staticmethod
     # def __get_current_directory_files(directory) -> list:
     #     for *dir_info, filenames in os.walk(directory):
@@ -266,4 +265,5 @@ class DifferencesTests(unittest.TestCase):
         # TODO тесты тесты тесты тесты
 
 
-
+if __name__ == '__main__':
+    unittest.main()
