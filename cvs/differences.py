@@ -1,5 +1,5 @@
 import os
-from dir_changes import DirectoryChanges
+from cvs.dir_changes import DirectoryChanges
 
 
 class Differences:

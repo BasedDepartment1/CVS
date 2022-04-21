@@ -1,8 +1,9 @@
 import unittest
 import os
 import shutil
-from file_changes import FileChanges
-from dir_changes import DirectoryChanges
+from cvs.file_changes import FileChanges
+from cvs.dir_changes import DirectoryChanges
+from cvs.data_transfer_objects import DifferenceDTO
 
 
 class DirectoryChangesTests(unittest.TestCase):

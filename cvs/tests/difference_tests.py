@@ -4,10 +4,9 @@ import unittest
 import os
 import random
 import shutil
-from data_transfer_objects import DifferenceDTO
-from file_changes import FileChanges
-from differences import Differences
-from dir_changes import DirectoryChanges
+from cvs.differences import Differences
+# from cvs.dir_changes import DirectoryChanges
+from cvs.dir_changes import DirectoryChanges
 
 
 class DifferencesTests(unittest.TestCase):
@@ -38,7 +37,6 @@ class DifferencesTests(unittest.TestCase):
         shutil.rmtree(self.dir2)
 
     def assert_orderless(self, expected):
-
         for element in expected:
             self.assertIn(element, self.trash.directory_difference())
 

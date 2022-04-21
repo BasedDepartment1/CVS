@@ -1,6 +1,6 @@
 import filecmp
 import os
-from file_changes import FileChanges
+from cvs.file_changes import FileChanges
 
 
 class DirectoryChanges:

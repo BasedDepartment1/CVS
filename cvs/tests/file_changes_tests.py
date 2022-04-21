@@ -3,8 +3,8 @@ import unittest
 import os
 import random
 import shutil
-from data_transfer_objects import DifferenceDTO
-from file_changes import FileChanges
+from cvs.data_transfer_objects import DifferenceDTO
+from cvs.file_changes import FileChanges
 
 
 class FileDifferencesTests(unittest.TestCase):
@@ -81,7 +81,6 @@ class FileDifferencesTests(unittest.TestCase):
         expected_changes = [DifferenceDTO(None, "f+rst line", 0)]
 
         self.assertEqual(expected_changes, actual_changes)
-
         # TODO тесты тесты тесты тесты
 
 
