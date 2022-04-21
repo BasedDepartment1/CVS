@@ -1,4 +1,5 @@
 import filecmp
+import time
 import unittest
 import os
 import random
@@ -6,6 +7,7 @@ import shutil
 from data_transfer_objects import DifferenceDTO
 from file_changes import FileChanges
 from differences import Differences
+from dir_changes import DirectoryChanges
 
 
 class DifferencesTests(unittest.TestCase):
@@ -25,7 +27,9 @@ class DifferencesTests(unittest.TestCase):
 
         self.dir1 = os.getcwd() + "\\first_directory"
         self.dir2 = os.getcwd() + "\\second_directory"
-        self.subdir = self.dir1 + "\\subdirectory1"
+        self.subdir1 = self.dir1 + "\\subdirectory1"
+        self.subdir2 = self.dir2 + "\\subdirectory1"
+        self.trash = Differences(self.dir1, self.dir2)
 
         os.chdir(self.save_)
 
@@ -33,7 +37,16 @@ class DifferencesTests(unittest.TestCase):
         shutil.rmtree(self.dir1)
         shutil.rmtree(self.dir2)
 
-    def test_something(self):
+    def assert_orderless(self, expected):
+
+        for element in expected:
+            self.assertIn(element, self.trash.directory_difference())
+
+        for element in self.trash.directory_difference():
+            self.assertIn(element, expected)
+
+    def test_root_directory(self):
+        time.sleep(1)
         with open(f"{self.dir1}\\testFile1.txt", "w+", encoding='utf-8',
                   errors='ignore') as f1:
             f1.write("123")
@@ -41,18 +54,27 @@ class DifferencesTests(unittest.TestCase):
         with open(f"{self.dir2}\\testFile1.txt", "w+", encoding='utf-8',
                   errors='ignore') as f1:
             f1.write("321")
+        
+        expected = [
+            DirectoryChanges(self.dir1, self.dir2)
+        ]
+        self.assert_orderless(expected)
 
-        with open(f"{self.subdir}\\testFile1.txt", "w+", encoding='utf-8',
+    def test_sub_directories(self):
+        time.sleep(1)
+        with open(f"{self.subdir1}\\testFile1.txt", "w+", encoding='utf-8',
                   errors='ignore') as f1:
             f1.write("3221")
 
-        with open(f"{self.subdir}\\testFile1.txt", "w+", encoding='utf-8',
+        with open(f"{self.subdir2}\\testFile1.txt", "w+", encoding='utf-8',
                   errors='ignore') as f1:
             f1.write("3212")
 
-        trash = Differences(self.dir1, self.dir2)
-        
-        expected = []
+        expected = [
+            DirectoryChanges(self.subdir1, self.subdir2)
+        ]
+
+        self.assert_orderless(expected)
 
 
 if __name__ == '__main__':

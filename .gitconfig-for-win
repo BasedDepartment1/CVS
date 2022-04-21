@@ -1,0 +1,36 @@
+[merge]
+	tool = vscode
+[mergetool]
+	keepbackup = false
+[diff]
+	tool = vscode
+	guitool = vscode
+[core]
+	autocrlf = true
+[pull]
+	ff = only
+	rebase = false
+[fetch]
+	prune = false
+[rebase]
+	autoStash = false
+[difftool "vscode"]
+	path = code
+	cmd = code --wait --diff $LOCAL $REMOTE
+[mergetool "vscode"]
+	path = code
+	cmd = code --wait $MERGED
+[credential]
+	helper = manager
+[alias]
+	it = !git init && git commit -m 'Initial commit' --allow-empty
+	st = status -sb
+	call = !git add . && git commit -m
+	commend = commit --amend --no-edit
+	graph = log --oneline --decorate --graph --all
+	to = checkout
+	pushup = push -u origin HEAD
+	please = push --force-with-lease
+	puff = pull --ff-only
+	pure = pull --rebase --autostash
+	undo = reset --soft HEAD^

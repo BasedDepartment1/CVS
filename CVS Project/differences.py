@@ -57,7 +57,7 @@ class Differences:
                 dir_current=f"{self.dir_current}{directory}"
             ))
         
-        return difference
+        return list(filter(lambda ch: len(ch.file_changes) != 0, difference))
 
     # @staticmethod
     # def __get_current_directory_files(directory) -> list:
