@@ -3,7 +3,7 @@ from cvs.data_transfer_objects import DifferenceDTO
 
 
 class FileChanges:
-    # TODO make a good __str()__ (all the inside, changed)
+    # TODO make a good __str__ (all the inside, changed)
     """
     Stores all information about difference between two files
     """

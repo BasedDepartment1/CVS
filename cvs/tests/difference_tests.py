@@ -36,12 +36,12 @@ class DifferencesTests(unittest.TestCase):
         shutil.rmtree(self.dir1)
         shutil.rmtree(self.dir2)
 
-    def assert_orderless(self, expected):
-        for element in expected:
-            self.assertIn(element, self.trash.directory_difference())
-
-        for element in self.trash.directory_difference():
-            self.assertIn(element, expected)
+    # def assert_orderless(self, expected):
+    #     for element in expected:
+    #         self.assertIn(element, self.trash.__find_directory_difference())
+    #
+    #     for element in self.trash.__find_directory_difference():
+    #         self.assertIn(element, expected)
 
     def test_root_directory(self):
         time.sleep(1)
@@ -52,27 +52,34 @@ class DifferencesTests(unittest.TestCase):
         with open(f"{self.dir2}\\testFile1.txt", "w+", encoding='utf-8',
                   errors='ignore') as f1:
             f1.write("321")
-        
-        expected = [
-            DirectoryChanges(self.dir1, self.dir2)
-        ]
-        self.assert_orderless(expected)
 
-    def test_sub_directories(self):
-        time.sleep(1)
-        with open(f"{self.subdir1}\\testFile1.txt", "w+", encoding='utf-8',
-                  errors='ignore') as f1:
-            f1.write("3221")
+        expected = {
+            "modified": [r"testFile1.txt"],
+            "deleted": [],
+            "new file": [],
+        }
+        self.assertDictEqual(expected, self.trash.changed_files)
 
-        with open(f"{self.subdir2}\\testFile1.txt", "w+", encoding='utf-8',
-                  errors='ignore') as f1:
-            f1.write("3212")
-
-        expected = [
-            DirectoryChanges(self.subdir1, self.subdir2)
-        ]
-
-        self.assert_orderless(expected)
+        # expected = [
+        #     DirectoryChanges(self.dir1, self.dir2)
+        # ]
+        # self.assert_orderless(expected)
+    #
+    # def test_sub_directories(self):
+    #     time.sleep(1)
+    #     with open(f"{self.subdir1}\\testFile1.txt", "w+", encoding='utf-8',
+    #               errors='ignore') as f1:
+    #         f1.write("3221")
+    #
+    #     with open(f"{self.subdir2}\\testFile1.txt", "w+", encoding='utf-8',
+    #               errors='ignore') as f1:
+    #         f1.write("3212")
+    #
+    #     expected = [
+    #         DirectoryChanges(self.subdir1, self.subdir2)
+    #     ]
+    #
+    #     self.assert_orderless(expected)
 
 
 if __name__ == '__main__':
