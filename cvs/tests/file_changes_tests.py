@@ -3,7 +3,7 @@ import unittest
 import os
 import random
 import shutil
-from cvs.data_transfer_objects import DifferenceDTO
+from cvs.data_transfer_object import DifferenceDTO
 from cvs.file_changes import FileChanges
 
 

@@ -1,5 +1,5 @@
 import difflib
-from cvs.data_transfer_objects import DifferenceDTO
+from cvs.data_transfer_object import DifferenceDTO
 
 
 class FileChanges:
@@ -50,13 +50,15 @@ class FileChanges:
         return full_changes_dto
     
     def __eq__(self, other: "FileChanges"):
-        return self.__file_lines_1 == other.__file_lines_1 \
-               and self.__file_lines_2 == other.__file_lines_2 \
-               and self.changes == other.changes
+        return (self.__file_lines_1, self.__file_lines_2, self.changes) \
+            == (other.__file_lines_1, other.__file_lines_2, other.changes)
     
     def __repr__(self):
         return f"FileChanges({self.__file_lines_1}, {self.__file_lines_2}):\n"\
                f" {self.changes})"
+
+    def __str__(self):
+        return "\n".join(str(d) for d in self.changes)
     
     
 if __name__ == "__main__":
