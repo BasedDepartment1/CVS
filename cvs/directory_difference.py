@@ -2,11 +2,11 @@ import itertools
 import os
 from typing import Dict, List, Any
 
-from cvs.dir_changes import DirectoryChanges
+# from cvs.dir_changes import DirectoryChanges
 from filecmp import dircmp
 
 
-class Differences:
+class DirectoryDifference:
     """
     All changed files between two directories
 

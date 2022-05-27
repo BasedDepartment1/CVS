@@ -1,11 +1,9 @@
 import sys
 import time
 import logging
-
+import initor
 
 # All functions are just for the sake of demonstration how main() will work
-def init(*args):
-    print("init cool")
 
 
 def add(*args):
@@ -40,7 +38,7 @@ def log(*args):
 
 
 COMMANDS = {
-    "init": init,
+    "init": initor.Initor.initialize,
     "add": add,
     "commit": commit,
     "reset": reset,
@@ -61,6 +59,8 @@ def main():
     except KeyError:
         logging.error("No such command")
         sys.exit(4)
+    except initor.InitializationException as e:
+        logging.error(e.msg)
 
 
 if __name__ == '__main__':

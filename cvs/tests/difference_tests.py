@@ -4,7 +4,7 @@ import unittest
 import os
 import random
 import shutil
-from cvs.differences import Differences
+from cvs.directory_difference import DirectoryDifference
 # from cvs.dir_changes import DirectoryChanges
 # from cvs.dir_changes import DirectoryChanges
 
@@ -28,7 +28,7 @@ class DifferencesTests(unittest.TestCase):
         self.dir2 = os.getcwd() + "\\second_directory"
         self.subdir1 = self.dir1 + "\\subdirectory1"
         self.subdir2 = self.dir2 + "\\subdirectory1"
-        self.trash = Differences(self.dir1, self.dir2)
+        self.trash = DirectoryDifference(self.dir1, self.dir2)
 
         os.chdir(self.save_)
 
