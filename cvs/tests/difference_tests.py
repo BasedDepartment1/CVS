@@ -5,8 +5,6 @@ import os
 import random
 import shutil
 from cvs.directory_difference import DirectoryDifference
-# from cvs.dir_changes import DirectoryChanges
-# from cvs.dir_changes import DirectoryChanges
 
 
 class DifferencesTests(unittest.TestCase):

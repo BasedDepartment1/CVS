@@ -1,9 +1,13 @@
 import itertools
 import os
-from typing import Dict, List, Any
-
-# from cvs.dir_changes import DirectoryChanges
 from filecmp import dircmp
+from enum import Enum
+
+
+class DiffKeys(Enum):
+    MODIFIED = "modified"
+    DELETED = "deleted"
+    NEW_FILE = "new file"
 
 
 class DirectoryDifference:
@@ -18,33 +22,15 @@ class DirectoryDifference:
     """
 
     def __init__(self, dir1: str, dir2: str):
-        # self.sub_folders1 = [dir1, *find_all_sub_folders(dir1)]
-        # self.sub_folders2 = [dir2, *find_all_sub_folders(dir2)]
         self.dir_previous = dir1
-        # self.subdirs1 = find_all_directories(dir1)
         self.dir_current = dir2
-        # self.dir_compared = filecmp.dircmp(self.dir1, self.dir2)
         self.changed_files = {
-            "modified": [],
-            "deleted": [],
-            "new file": [],
+            DiffKeys.MODIFIED: [],
+            DiffKeys.DELETED: [],
+            DiffKeys.NEW_FILE: [],
         }
         self.__find_directory_difference(dircmp(self.dir_previous,
                                                 self.dir_current))
-
-    # def __find_directory_sub_folders(self) -> tuple[set, set]:
-    # """
-    # Finds all subfolders in main directories to analyze their difference
-    # :return: Folders of previous and current directory
-    # """
-    # folders_prev = set()
-    # folders_curr = set()
-    # for dir_path, *_ in os.walk(self.dir_previous):
-    #     folders_prev.add(dir_path[len(self.dir_previous):])
-    # for dir_path, *_ in os.walk(self.dir_current):
-    #     folders_curr.add(dir_path[len(self.dir_current):])
-    #
-    # return folders_prev, folders_curr
 
     @staticmethod
     def __get_files(c, dirs, filenames):
@@ -56,62 +42,36 @@ class DirectoryDifference:
 
         bias = '/'.join(prev_dir) + '/' if len(prev_dir) > 0 else ''
         for common_diff_file in dir_cmp.diff_files:
-            self.changed_files["modified"].append(bias + common_diff_file)
+            self.changed_files[DiffKeys.MODIFIED]\
+                .append(bias + common_diff_file)
 
-        for deleted_file in dir_cmp.left_only:
-            self.changed_files["deleted"].append(bias + deleted_file)
-            path = f"{self.dir_previous}/{bias}{deleted_file}"
-            if os.path.isdir(path):
-                for file in itertools.chain.from_iterable(itertools.starmap(
-                        self.__get_files, os.walk(path))):
-                    self.changed_files["deleted"].append(
-                        file[len(self.dir_previous) + 1:].replace("\\", "/")
-                    )
+        self.__add_to_changes(
+            dir_cmp.left_only, DiffKeys.DELETED, self.dir_previous, bias)
 
-        for new_file in dir_cmp.right_only:
-            self.changed_files["new file"].append(bias + new_file)
-            path = f"{self.dir_current}/{bias}{new_file}"
-            if os.path.isdir(path):
-                for file in itertools.chain.from_iterable(itertools.starmap(
-                        self.__get_files, os.walk(path))):
-                    self.changed_files["new file"].append(
-                        file[len(self.dir_current) + 1:].replace("\\", "/")
-                    )
+        self.__add_to_changes(
+            dir_cmp.right_only, DiffKeys.NEW_FILE, self.dir_current, bias)
 
         for subdir, subdir_cmp in dir_cmp.subdirs.items():
             self.__find_directory_difference(subdir_cmp, [*prev_dir, subdir])
-        # """
-        # Finds difference between two directories
-        # :return: List of differences between each of subfolders
-        # """
-        # prev_folders, curr_folders = self.__find_directory_sub_folders()
-        # difference = []
-        #
-        # for directory in prev_folders.intersection(curr_folders):
-        #     difference.append(DirectoryChanges(
-        #         f"{self.dir_previous}{directory}",
-        #         f"{self.dir_current}{directory}"
-        #     ))
-        # for directory in prev_folders.difference(curr_folders):
-        #     difference.append(DirectoryChanges(
-        #         dir_prev=f"{self.dir_previous}{directory}"
-        #     ))
-        # for directory in curr_folders.difference(prev_folders):
-        #     difference.append(DirectoryChanges(
-        #         dir_current=f"{self.dir_current}{directory}"
-        #     ))
-        #
-        # return list(filter(lambda ch: len(ch.file_changes) != 0, difference))
 
-    # @staticmethod
-    # def __get_current_directory_files(directory) -> list:
-    #     for *dir_info, filenames in os.walk(directory):
-    #         return filenames
-    #
-    # def __find_subdirectory_difference(self, subdir1, subdir2):
-    #     sub_dirs_compared = filecmp.dircmp(subdir1, subdir2)
-    #     dir1_files = self.__get_current_directory_files(subdir1)
-    #     dir2_files = self.__get_current_directory_files(subdir2)
+    def __add_to_changes(self,
+                         files: list,
+                         key: DiffKeys,
+                         directory: str,
+                         bias: str
+                         ):
+        for unique_file in files:
+            self.changed_files[key].append(bias + unique_file)
+            path = f"{directory}/{bias}{unique_file}"
+
+            if not os.path.isdir(path):
+                continue
+
+            for file in itertools.chain.from_iterable(itertools.starmap(
+                    self.__get_files, os.walk(path))):
+                self.changed_files[key].append(
+                    file[len(directory) + 1:].replace("\\", "/")
+                )
 
     def __str__(self):
         dif_file_ins = []

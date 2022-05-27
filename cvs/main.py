@@ -1,8 +1,7 @@
 import sys
 import time
 import logging
-import initor
-
+import init
 # All functions are just for the sake of demonstration how main() will work
 
 
@@ -31,14 +30,14 @@ def reset(*args):
     print("reset")
 
 
-def log(*args):
+def log():
     print("1: ya")
     print("2: ebal")
     print("3: sobaky")
 
 
 COMMANDS = {
-    "init": initor.Initor.initialize,
+    "init": init.Init.initialize,
     "add": add,
     "commit": commit,
     "reset": reset,
@@ -59,8 +58,13 @@ def main():
     except KeyError:
         logging.error("No such command")
         sys.exit(4)
-    except initor.InitializationException as e:
+    except TypeError:
+        logging.error("Given command does not support "
+                      f"this amount of arguments: {len(sys.argv[2:])}")
+        sys.exit(123)
+    except init.InitializationException as e:
         logging.error(e.msg)
+        sys.exit(228)
 
 
 if __name__ == '__main__':

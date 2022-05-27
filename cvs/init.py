@@ -8,7 +8,12 @@ class InitializationException(Exception):
         self.msg = message
 
 
-class Initor:
+class Init:
+    """
+    Initializes repository on current path
+    """
+    initialized = False
+
     initial_folder_name = "initial_state"
     index_folder_name = "index_state"
 
@@ -22,10 +27,12 @@ class Initor:
         except FileExistsError:
             raise InitializationException("Repository was already initialized")
 
-        Initor.__make_directory_image(
-            cur_dir, f"{rep_path}/{Initor.initial_folder_name}")
-        Initor.__make_directory_image(
-            cur_dir, f"{rep_path}/{Initor.index_folder_name}")
+        Init.__make_directory_image(
+            cur_dir, f"{rep_path}/{Init.initial_folder_name}")
+        Init.__make_directory_image(
+            cur_dir, f"{rep_path}/{Init.index_folder_name}")
+
+        Init.initialized = True
 
     @staticmethod
     def __make_directory_image(cur_path: str, path: str):
@@ -34,4 +41,4 @@ class Initor:
 
 
 if __name__ == "__main__":
-    Initor.initialize()
+    Init.initialize()
