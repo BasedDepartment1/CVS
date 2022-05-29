@@ -9,6 +9,9 @@ class DiffKeys(Enum):
     DELETED = "deleted"
     NEW_FILE = "new file"
 
+    def __str__(self):
+        return self.name.lower()
+
 
 class DirectoryDifference:
     """
@@ -21,9 +24,9 @@ class DirectoryDifference:
                         and modified files.
     """
 
-    def __init__(self, dir1: str, dir2: str):
-        self.dir_previous = dir1
-        self.dir_current = dir2
+    def __init__(self, prev: str, curr: str):
+        self.dir_previous = prev
+        self.dir_current = curr
         self.changed_files = {
             DiffKeys.MODIFIED: [],
             DiffKeys.DELETED: [],

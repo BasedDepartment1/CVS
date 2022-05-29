@@ -12,10 +12,13 @@ class Init:
     """
     Initializes repository on current path
     """
+    rep_path: str
+    initial_folder_path: str
+    index_folder_path: str
     initialized = False
 
-    initial_folder_name = "initial_state"
-    index_folder_name = "index_state"
+    __initial_folder_name = "initial_state"
+    __index_folder_name = "index_state"
 
     @staticmethod
     def initialize():
@@ -27,10 +30,13 @@ class Init:
         except FileExistsError:
             raise InitializationException("Repository was already initialized")
 
+        Init.initial_folder_path = f"{rep_path}/{Init.__initial_folder_name}"
+        Init.index_folder_path = f"{rep_path}/{Init.__index_folder_name}"
+
         Init.__make_directory_image(
-            cur_dir, f"{rep_path}/{Init.initial_folder_name}")
+            cur_dir, Init.initial_folder_path)
         Init.__make_directory_image(
-            cur_dir, f"{rep_path}/{Init.index_folder_name}")
+            cur_dir, Init.index_folder_path)
 
         Init.initialized = True
 
