@@ -35,16 +35,18 @@ class FileChanges:
         for line in filtered_differences:
             if line[0] == "-":
                 diff_started = True
-                full_changes_dto.append(DifferenceDTO(line[2:], None,
-                                                      diff_counter))
+                full_changes_dto.append(DifferenceDTO(removed=line[2:],
+                                                      added=None,
+                                                      index=diff_counter))
             elif line[0] == "+":
                 if diff_started:
                     full_changes_dto[-1].added = line[2:]
                     diff_counter -= 1
                     diff_started = False
                 else:
-                    full_changes_dto.append(DifferenceDTO(None, line[2:],
-                                                          diff_counter))
+                    full_changes_dto.append(DifferenceDTO(removed=None,
+                                                          added=line[2:],
+                                                          index=diff_counter))
             diff_counter += 1
         
         return full_changes_dto
