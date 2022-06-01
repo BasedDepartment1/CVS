@@ -55,6 +55,8 @@ class DirectoryDifference:
             dir_cmp.right_only, DiffKeys.NEW_FILE, self.dir_current, bias)
 
         for subdir, subdir_cmp in dir_cmp.subdirs.items():
+            if ".cvs" in subdir:
+                continue
             self.__find_directory_difference(subdir_cmp, [*prev_dir, subdir])
 
     def __add_to_changes(self,

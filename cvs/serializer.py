@@ -14,12 +14,6 @@ class Serializer:
         else:
             return json.dumps(changes)
 
-    # @staticmethod
-    # @serialize.register(dict)
-    # def _(changes: dict, filename=None):
-    #     method = json.dump if filename else json.dumps
-    #     return method(changes, fp=filename, indent=4)
-
     @staticmethod
     def deserialize(json_data):
         method = json.load if os.path.exists(json_data) else json.loads

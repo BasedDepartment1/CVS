@@ -2,7 +2,8 @@ import sys
 import time
 import logging
 import init
-# All functions are just for the sake of demonstration how main() will work
+import repository
+import adder
 
 
 def add(*args):
@@ -37,8 +38,8 @@ def log():
 
 
 COMMANDS = {
-    "init": init.Init.initialize,
-    "add": add,
+    "init": repository.init,
+    "add": adder.Adder.add,
     "commit": commit,
     "reset": reset,
     "log": log,

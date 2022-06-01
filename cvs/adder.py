@@ -2,7 +2,13 @@ import os
 from cvs.file_changes import FileChanges
 from cvs.init import Init
 from cvs.directory_difference import DirectoryDifference, DiffKeys
-import json
+from cvs.repository import Repository
+from cvs.serializer import Serializer
+
+
+class NotInitializedError(Exception):
+    def __init__(self, msg: str):
+        self.message = msg
 
 
 class Adder:
@@ -11,11 +17,29 @@ class Adder:
         """
         Adds a file or directory to the index
 
-        :raises FileNotFoundError if file/directory does
-        not belong to repository
         :param path: path to file/directory
+        :raises FileNotFoundError: if file/directory does
+        not belong to repository
+        :raises NotInitializedError: if repository was not set up
         """
-        pass
+        if Repository.cvs_dir is None:
+            raise NotInitializedError
+        try:
+            if path != ".":
+                os.path.relpath(path, Repository.worktree)
+        except OSError:
+            raise FileNotFoundError
+
+        if path == ".":
+            diff = Adder.__find_dir_difference(Repository.worktree)
+        elif os.path.isdir(path):
+            diff = Adder.__find_dir_difference(path)
+        else:
+            diff = Adder.__find_file_difference(path)
+
+        if diff is not list:
+            diff = [diff]
+        Adder.__serialize_difference(diff)
 
     @staticmethod
     def __remove_dir_path(path: str) -> str:
@@ -62,50 +86,34 @@ class Adder:
                 changed_files \
                     .append(Adder.__find_file_difference(staged_change))
             else:
-                changed_files.append((key, staged_change))
+                changed_files.append((staged_change, key))
 
         return changed_files
 
     @staticmethod
-    def __serialize_difference(differences: list[FileChanges, tuple[DiffKeys,
-                                                                    list]]) \
-            -> None:
+    def __serialize_difference(
+            differences: list[FileChanges, tuple[DiffKeys, list]]) -> None:
         """
         Add all calculated differences to .json file
         If file or directory difference exists, override it
         :param differences: differences between current and index state
         """
-        def jsonify(jsoned_string, file_path):
-            return file_path + jsoned_string
+        path = os.path.join(Repository.cvs_dir, "index.json")
+        previous = Serializer.deserialize(path)
+        data = Adder.__intersect_difference(
+            previous, Serializer.make_dict(differences))
+        Serializer.serialize(data, path)
 
-        path_to_json_file = Init.rep_path + "statham.json"  # путь (не путю) к json файлу
-        serialized_changes = []
-
-        # TODO унифицировать построение json-строки
-        for diff in differences:
-            if isinstance(diff, FileChanges):
-                serialized_changes = [jsonify(inst.to_json(), diff.file_path)
-                                      for inst in diff.changes]
-            else:
-                # если в diff Tuple'ы вида (DiffKeys.MODIFIED|DELETED|NEWFILE, [changes]), то делаем json из них
-                # надо как-то унифицировать форму этого jsona, потому что выше мы строим его по-другому
-                # то есть [jsonify(inst.to_json(), diff.file_path) for inst in diff.changes] хорошо бы как-то так же строить строку
-                # иначе потом не разберем что где
-
-                serialized_changes.append(json.dumps({diff[0]: diff[1]}))
-        # сравниваем json старый с новым, ищем их объединение
-        # если нормальные json-строки будут (одного формата), то сравнивать их можно легко, простым проходам по значениям:
-        # например вот так:  json_data[i][f"{key}"], json-data получается с помощью json.load (не loads, по аналогии понятно что это даст строку)
-        #TODO найти объединение json'а старого и нового, записать их в тот же (он у нас один, лежит в .cvs) json
-        with open(path_to_json_file, "w") as js_file:
-            old_data = json.load(js_file)
-            for stage in old_data:
-                if stage not in serialized_changes:
-                    serialized_changes.append(stage)
-            json.dump(serialized_changes, js_file, indent=4)
-
-        # Сначала считываем то что есть в jsonе
-        # Делаем объединение того что есtь и нового
-        # ПЕРЕзаписываем в тот же json
-
-        #TODO всего по add осталось: две TODOшки выше и сам def add()
+    @staticmethod
+    def __intersect_difference(previous: dict, current: dict) -> dict:
+        """
+        Performs an intersection of already tracked file differences with
+        freshly tracked ones
+        :param previous: changes already added to
+        :param current:
+        :return:
+        """
+        for key in previous:
+            if key not in current:
+                current[key] = previous[key]
+        return current
