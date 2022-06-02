@@ -32,8 +32,8 @@ class DirectoryDifference:
             DiffKeys.DELETED: [],
             DiffKeys.NEW_FILE: [],
         }
-        self.__find_directory_difference(dircmp(self.dir_previous,
-                                                self.dir_current))
+        self.__find_directory_difference(
+            dircmp(self.dir_previous, self.dir_current, ignore=".cvs"))
 
     @staticmethod
     def __get_files(c, dirs, filenames):
@@ -44,8 +44,10 @@ class DirectoryDifference:
             prev_dir = list()
 
         bias = '/'.join(prev_dir) + '/' if len(prev_dir) > 0 else ''
+        if ".cvs" in bias:
+            return
         for common_diff_file in dir_cmp.diff_files:
-            self.changed_files[DiffKeys.MODIFIED]\
+            self.changed_files[DiffKeys.MODIFIED] \
                 .append(bias + common_diff_file)
 
         self.__add_to_changes(
@@ -59,12 +61,13 @@ class DirectoryDifference:
                 continue
             self.__find_directory_difference(subdir_cmp, [*prev_dir, subdir])
 
-    def __add_to_changes(self,
-                         files: list,
-                         key: DiffKeys,
-                         directory: str,
-                         bias: str
-                         ):
+    def __add_to_changes(
+            self,
+            files: list,
+            key: DiffKeys,
+            directory: str,
+            bias: str
+    ):
         for unique_file in files:
             self.changed_files[key].append(bias + unique_file)
             path = f"{directory}/{bias}{unique_file}"

@@ -59,10 +59,10 @@ def main():
     except KeyError:
         logging.error("No such command")
         sys.exit(4)
-    except TypeError:
-        logging.error("Given command does not support "
-                      f"this amount of arguments: {len(sys.argv[2:])}")
-        sys.exit(123)
+    # except TypeError:
+    #     logging.error("Given command does not support "
+    #                   f"this amount of arguments: {len(sys.argv[2:])}")
+    #     sys.exit(123)
     except init.InitializationException as e:
         logging.error(e.msg)
         sys.exit(228)

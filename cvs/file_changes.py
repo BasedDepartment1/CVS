@@ -1,5 +1,5 @@
 import difflib
-from cvs.data_transfer_object import DifferenceDTO
+from data_transfer_object import DifferenceDTO
 
 
 class FileChanges:

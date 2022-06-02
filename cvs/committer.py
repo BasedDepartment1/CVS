@@ -1,3 +1,5 @@
+import hashlib
+
 # from file_changes import FileChanges
 # from differences import Differences
 # import json
@@ -38,3 +40,5 @@
 # class CommitTechInfoBuilderForObjectAndNameOfThisClassCanSurelyBeEvenLonger:
 #     def __init__(self):
 #
+class Commit:
+    pass

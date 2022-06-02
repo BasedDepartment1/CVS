@@ -1,6 +1,6 @@
 import errno
 
-from cvs.directory_difference import DirectoryDifference
+from directory_difference import DirectoryDifference
 import os
 import shutil
 

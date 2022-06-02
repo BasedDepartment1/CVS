@@ -14,6 +14,9 @@ class Repository:
         if not (force or os.path.isdir(Repository.cvs_dir)):
             raise Exception(f"Not a repository: {path}")
 
+        with open("repo_path.txt", "w") as f:
+            f.write(path)
+
 
 def get_rep_path(repo, *path):
     return os.path.join(repo.cvs_dir, *path)
@@ -67,7 +70,15 @@ def init(path):
     make_directory_image(repo.worktree, os.path.join(repo.cvs_dir, "initial"))
     make_directory_image(repo.worktree, os.path.join(repo.cvs_dir, "index"))
 
+    with open(os.path.join(repo.cvs_dir, "index.json"), "w+") as f:
+        f.write("")
+
     with open(get_relative_file_path(repo, "HEAD"), "w") as f:
         f.write("ref: refs/heads/master\n")
 
     return repo
+
+
+def find_repo():
+    with open("repo_path.txt", "r") as f:
+        return Repository(f.read())

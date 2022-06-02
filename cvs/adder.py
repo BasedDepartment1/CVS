@@ -1,9 +1,9 @@
 import os
-from cvs.file_changes import FileChanges
-from cvs.init import Init
-from cvs.directory_difference import DirectoryDifference, DiffKeys
-from cvs.repository import Repository
-from cvs.serializer import Serializer
+from file_changes import FileChanges
+from init import Init
+from directory_difference import DirectoryDifference, DiffKeys
+from repository import Repository, find_repo
+from serializer import Serializer
 
 
 class NotInitializedError(Exception):
@@ -12,6 +12,8 @@ class NotInitializedError(Exception):
 
 
 class Adder:
+    __repo: Repository
+
     @staticmethod
     def add(path: str) -> None:
         """
@@ -22,22 +24,24 @@ class Adder:
         not belong to repository
         :raises NotInitializedError: if repository was not set up
         """
-        if Repository.cvs_dir is None:
+        Adder.__repo = find_repo()
+
+        if Adder.__repo.cvs_dir is None:
             raise NotInitializedError
         try:
             if path != ".":
-                os.path.relpath(path, Repository.worktree)
+                os.path.relpath(path, Adder.__repo.worktree)
         except OSError:
             raise FileNotFoundError
 
         if path == ".":
-            diff = Adder.__find_dir_difference(Repository.worktree)
+            diff = Adder.__find_dir_difference(Adder.__repo.worktree)
         elif os.path.isdir(path):
             diff = Adder.__find_dir_difference(path)
         else:
             diff = Adder.__find_file_difference(path)
 
-        if diff is not list:
+        if not isinstance(diff, list):
             diff = [diff]
         Adder.__serialize_difference(diff)
 
@@ -57,7 +61,7 @@ class Adder:
         :return: relative path to file/directory
         """
 
-        return os.path.relpath(path).replace("\\", "/")
+        # return os.path.relpath(path).replace("\\", "/")
 
     @staticmethod
     def __find_file_difference(path: str) -> FileChanges:
@@ -67,7 +71,8 @@ class Adder:
         :param path: path to current file
         :return: changes done to a file
         """
-        return FileChanges.find_difference(Init.index_folder_path, path)
+        return FileChanges.find_difference(
+            os.path.join(Adder.__repo.cvs_dir, "index"), path)
 
     @staticmethod
     def __find_dir_difference(path: str) -> list[FileChanges, tuple]:
@@ -78,10 +83,11 @@ class Adder:
         :return: list of FileChanges for files and tuples
         (directory_path, DiffKeys.[difference type]) for directories
         """
-        res = DirectoryDifference(Init.index_folder_path, path)
+        res = DirectoryDifference(
+            os.path.join(Adder.__repo.cvs_dir, "index"), path)
         changed_files = []
 
-        for key, staged_change in res.changed_files:
+        for key, staged_change in res.changed_files.items():
             if key == DiffKeys.MODIFIED:
                 changed_files \
                     .append(Adder.__find_file_difference(staged_change))
@@ -98,7 +104,7 @@ class Adder:
         If file or directory difference exists, override it
         :param differences: differences between current and index state
         """
-        path = os.path.join(Repository.cvs_dir, "index.json")
+        path = os.path.join(Adder.__repo.cvs_dir, "index.json")
         previous = Serializer.deserialize(path)
         data = Adder.__intersect_difference(
             previous, Serializer.make_dict(differences))
@@ -111,7 +117,6 @@ class Adder:
         freshly tracked ones
         :param previous: changes already added to
         :param current:
-        :return:
         """
         for key in previous:
             if key not in current:
